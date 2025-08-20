@@ -1,0 +1,266 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo do Triângulo</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            /* Tom de azul escuro extraído da imagem */
+            background-color: #0b192f;
+            font-family: 'Courier New', Courier, monospace;
+            color: white;
+            position: relative; /* Necessário para posicionar o botão 'voltar' */
+        }
+        #game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        canvas {
+            /* Fundo azul dentro do canvas, como solicitado */
+            background-color: #1a293d;
+            border-radius: 8px;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        /* Estilo para o botão 'voltar' */
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px; /* Espaço entre a seta e o texto */
+        }
+        .back-button span:first-child {
+            font-size: 24px; /* Aumenta o tamanho da seta */
+        }
+        .back-button:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<a href="homepage.html" class="back-button">
+    <span>&larr;</span> <!-- Seta para a esquerda -->
+    <span>voltar</span>
+</a>
+
+<div id="game-container">
+    <h1>Jogo do Triângulo</h1>
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
+</div>
+
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Constantes e Variáveis do Jogo
+    const LARGURA_TELA = canvas.width;
+    const ALTURA_TELA = canvas.height;
+    const ALTURA_CHAO = ALTURA_TELA - 50;
+
+    let velocidadeJogo = 3; // Velocidade inicial reduzida para 60% (era 5)
+    let pontuacao = 0;
+    let gameOver = false;
+    let frame = 0;
+
+    // Jogador (Triângulo)
+    const jogador = {
+        x: 60,
+        y: ALTURA_CHAO,
+        largura: 30, // Largura da base do triângulo
+        altura: 30,  // Altura do triângulo
+        velocidadeY: 0,
+        gravidade: 0.8,
+        forcaPulo: -16,
+        estaPulando: false,
+
+        desenhar() {
+            ctx.beginPath();
+            // Ponto superior do triângulo
+            ctx.moveTo(this.x, this.y - this.altura);
+            // Ponto inferior direito
+            ctx.lineTo(this.x + this.largura / 2, this.y);
+            // Ponto inferior esquerdo
+            ctx.lineTo(this.x - this.largura / 2, this.y);
+            ctx.closePath();
+
+            // Preenchimento e contorno
+            ctx.fillStyle = '#FFFFFF'; // Branco
+            ctx.fill();
+            ctx.strokeStyle = '#000000'; // Preto
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        },
+
+        pular() {
+            // Só pode pular se não estiver no ar
+            if (!this.estaPulando) {
+                this.velocidadeY = this.forcaPulo;
+                this.estaPulando = true;
+            }
+        },
+
+        atualizar() {
+            this.velocidadeY += this.gravidade;
+            this.y += this.velocidadeY;
+
+            // Impede que o jogador caia para fora da tela
+            if (this.y > ALTURA_CHAO) {
+                this.y = ALTURA_CHAO;
+                this.velocidadeY = 0;
+                this.estaPulando = false;
+            }
+        }
+    };
+
+    // Obstáculos
+    const obstaculos = [];
+
+    function criarObstaculo() {
+        const altura = Math.random() * 40 + 25; // Altura aleatória entre 25 e 65
+        const largura = 25;
+        obstaculos.push({
+            x: LARGURA_TELA,
+            y: ALTURA_CHAO - altura,
+            largura: largura,
+            altura: altura,
+            passou: false // Nova propriedade para controlar a pontuação
+        });
+    }
+
+    function atualizarObstaculos() {
+        // Gera novos obstáculos em intervalos que diminuem com a velocidade
+        if (frame % Math.floor(120 / (velocidadeJogo / 3)) === 0) {
+            criarObstaculo();
+        }
+
+        for (let i = obstaculos.length - 1; i >= 0; i--) {
+            const obs = obstaculos[i];
+            obs.x -= velocidadeJogo;
+
+            // Lógica para pontuar quando o jogador passa o obstáculo
+            if (!obs.passou && obs.x + obs.largura < jogador.x) {
+                pontuacao++;
+                obs.passou = true;
+            }
+
+            // Desenha o obstáculo (retângulo branco)
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(obs.x, obs.y, obs.largura, obs.altura);
+
+            // Detecção de colisão (usando a caixa delimitadora do triângulo)
+            const topoJogador = jogador.y - jogador.altura;
+            const baseJogador = jogador.y;
+            const esquerdaJogador = jogador.x - jogador.largura / 2;
+            const direitaJogador = jogador.x + jogador.largura / 2;
+
+            if (direitaJogador > obs.x &&
+                esquerdaJogador < obs.x + obs.largura &&
+                baseJogador > obs.y &&
+                topoJogador < obs.y + obs.altura) {
+                gameOver = true;
+            }
+
+            // Remove obstáculos que saíram da tela para otimizar o jogo
+            if (obs.x + obs.largura < 0) {
+                obstaculos.splice(i, 1);
+            }
+        }
+    }
+
+    function desenharCenario() {
+        // Limpa a tela a cada frame
+        ctx.clearRect(0, 0, LARGURA_TELA, ALTURA_TELA);
+
+        // Chão (linha branca)
+        ctx.strokeStyle = '#FFFFFF';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, ALTURA_CHAO);
+        ctx.lineTo(LARGURA_TELA, ALTURA_CHAO);
+        ctx.stroke();
+
+        // Pontuação
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '24px "Courier New", Courier, monospace';
+        ctx.fillText(`Pontos: ${pontuacao}`, LARGURA_TELA - 200, 40);
+    }
+    
+    function exibirGameOver() {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+        ctx.fillRect(0, 0, LARGURA_TELA, ALTURA_TELA);
+        
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '50px "Courier New", Courier, monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('GAME OVER', LARGURA_TELA / 2, ALTURA_TELA / 2 - 20);
+
+        ctx.font = '20px "Courier New", Courier, monospace';
+        ctx.fillText('Pressione ESPAÇO para reiniciar', LARGURA_TELA / 2, ALTURA_TELA / 2 + 20);
+        ctx.textAlign = 'left'; // Reseta o alinhamento do texto
+    }
+
+    function reiniciar() {
+        jogador.y = ALTURA_CHAO;
+        jogador.velocidadeY = 0;
+        obstaculos.length = 0; // Limpa o array de obstáculos
+        pontuacao = 0;
+        velocidadeJogo = 3; // Reseta para a velocidade inicial reduzida
+        frame = 0;
+        gameOver = false;
+        loop(); // Reinicia o loop do jogo
+    }
+
+    // Adiciona o listener para o pulo com a tecla Espaço
+    document.addEventListener('keydown', (e) => {
+        if (e.code === 'Space') {
+            if (gameOver) {
+                reiniciar();
+            } else {
+                jogador.pular();
+            }
+        }
+    });
+
+    // Loop principal do Jogo
+    function loop() {
+        if (gameOver) {
+            exibirGameOver();
+            return;
+        }
+
+        desenharCenario();
+        jogador.desenhar();
+        jogador.atualizar();
+        atualizarObstaculos();
+
+        // Atualiza contadores
+        // Aumento de velocidade reduzido para 60% (era 0.002)
+        velocidadeJogo += 0.0012; 
+        frame++;
+
+        // Chama o próximo frame da animação
+        requestAnimationFrame(loop);
+    }
+
+    // Inicia o jogo
+    loop();
+
+</script>
+
+</body>
+</html>
