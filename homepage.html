@@ -1,0 +1,372 @@
+# krocksss.github.io
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marllon Machado - Portfólio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos customizados */
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #111827; /* bg-gray-900 */
+            color: #F9FAFB; /* text-gray-50 */
+            overflow-x: hidden;
+        }
+        h1, h2, h3 {
+            font-family: 'Orbitron', sans-serif;
+        }
+        .text-glow {
+            text-shadow: 0 0 8px rgba(59, 130, 246, 0.7), 0 0 20px rgba(59, 130, 246, 0.5);
+        }
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 50%;
+            background-color: #3B82F6; /* blue-500 */
+            transition: all 0.3s ease-in-out;
+            transform: translateX(-50%);
+        }
+        .nav-link:hover {
+            color: #3B82F6;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        /* --- ESTILOS ATUALIZADOS PARA O ÍCONE DE OLHO --- */
+        #eye-container {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            z-index: 50;
+            cursor: pointer;
+            width: 48px; /* Largura da base do triângulo (80px * 0.6) */
+            height: 42px; /* Altura do triângulo (70px * 0.6) */
+        }
+        #eye-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 24px solid transparent;   /* 40px * 0.6 */
+            border-right: 24px solid transparent;  /* 40px * 0.6 */
+            border-bottom: 42px solid white;     /* 70px * 0.6 */
+            z-index: 1;
+        }
+        #eye {
+            width: 22px;  /* 36px * 0.6 */
+            height: 22px; /* 36px * 0.6 */
+            background-color: white;
+            border-radius: 50%;
+            position: absolute;
+            z-index: 2;
+            top: 13px;   /* 22px * 0.6 */
+            left: 50%;
+            transform: translateX(-50%);
+            border: 2px solid #111827;
+        }
+        #pupil {
+            width: 10px;  /* 16px * 0.6 */
+            height: 10px; /* 16px * 0.6 */
+            background-color: #111827;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: transform 0.1s linear;
+        }
+        #eyelid {
+            width: 100%;
+            height: 100%;
+            background: #111827;
+            position: absolute;
+            top: 0;
+            left: 0;
+            border-radius: 50%;
+            transform: scaleY(0);
+            transform-origin: center;
+        }
+        #eye.blinking #eyelid {
+            animation: blink 0.4s ease-in-out;
+        }
+        @keyframes blink {
+            0%, 100% { transform: scaleY(0); }
+            50% { transform: scaleY(1.2); }
+        }
+        #menu {
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        #main-content {
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .project-card .youtube-video {
+            pointer-events: none;
+        }
+        
+        #projects-title {
+            position: relative;
+            z-index: 20;
+            transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        #projects-grid {
+            position: relative;
+            z-index: 2; 
+        }
+        .project-card {
+            transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.5s ease;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Ícone do Olho / Botão do Menu -->
+    <div id="eye-container">
+        <div id="eye">
+            <div id="pupil"></div>
+            <div id="eyelid"></div>
+        </div>
+    </div>
+
+    <!-- Menu de Navegação -->
+    <nav id="menu" class="fixed top-0 left-0 h-full w-64 bg-gray-900 bg-opacity-90 backdrop-blur-sm p-8 transform -translate-x-full z-40">
+        <ul class="flex flex-col space-y-8 mt-24 text-lg">
+            <li><a href="#identificacao" class="nav-link text-gray-200">Identificação</a></li>
+            <li><a href="#interesses" class="nav-link text-gray-200">Interesses</a></li>
+            <li><a href="#projetos" class="nav-link text-gray-200">Projetos</a></li>
+            <li><a href="game.html" class="nav-link text-gray-200">Game</a></li>
+        </ul>
+    </nav>
+
+    <!-- Conteúdo Principal -->
+    <main id="main-content" class="min-h-screen p-8 md:p-16">
+        
+        <!-- Seção: Identificação -->
+        <section id="identificacao" class="min-h-screen flex items-center justify-center text-center">
+            <div class="max-w-3xl">
+                <h1 class="text-5xl md:text-7xl font-bold text-glow">MARLLON MACHADO</h1>
+                <p class="mt-4 text-xl md:text-2xl text-gray-300">23 Anos | Estudante de Engenharia de Computação</p>
+                <p class="mt-2 text-lg text-gray-400">Ibmec - Faria Lima</p>
+                <div class="mt-8 border-t-2 border-blue-500 w-24 mx-auto"></div>
+                <p class="mt-8 text-lg md:text-xl text-gray-300 leading-relaxed">
+                    Aspirante a desenvolvedor na indústria de games, com uma paixão profunda por criar mundos interativos e resolver desafios complexos de programação.
+                </p>
+            </div>
+        </section>
+
+        <!-- Seção: Interesses Pessoais -->
+        <section id="interesses" class="min-h-screen flex items-center justify-center">
+             <div class="container mx-auto px-4 text-center">
+                <h2 class="text-4xl md:text-5xl font-bold mb-12 text-glow">Interesses Pessoais</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Card 1 -->
+                    <div class="bg-gray-800 p-6 rounded-lg border border-gray-700 hover:border-blue-500 hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-300">
+                        <h3 class="text-2xl font-bold mb-4">Game Design & Mecânicas</h3>
+                        <p class="text-gray-400">Fascinado por sistemas de jogos, balanceamento de mecânicas e a psicologia por trás da experiência do jogador. Gosto de desconstruir meus jogos favoritos para entender o que os torna tão cativantes.</p>
+                    </div>
+                    <!-- Card 2 -->
+                    <div class="bg-gray-800 p-6 rounded-lg border border-gray-700 hover:border-blue-500 hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-300">
+                        <h3 class="text-2xl font-bold mb-4">Gráficos Computacionais e IA</h3>
+                        <p class="text-gray-400">Atraído pela intersecção entre arte e tecnologia. Estudo shaders, renderização em tempo real e algoritmos de IA para criar inimigos mais inteligentes e mundos mais imersivos e realistas.</p>
+                    </div>
+                    <!-- Card 3 -->
+                    <div class="bg-gray-800 p-6 rounded-lg border border-gray-700 hover:border-blue-500 hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-300">
+                        <h3 class="text-2xl font-bold mb-4">Cenário Indie & Game Jams</h3>
+                        <p class="text-gray-400">Admiro a criatividade e a inovação da cena indie. Participar de Game Jams é uma das minhas atividades favoritas para prototipar ideias rapidamente e colaborar com outros desenvolvedores apaixonados.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção: Projetos -->
+        <section id="projetos" class="min-h-screen flex items-center">
+            <div class="container mx-auto px-4">
+                <h2 id="projects-title" class="text-4xl md:text-5xl font-bold mb-12 text-glow text-center">Projetos</h2>
+                <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    
+                    <!-- Card do Projeto 1 -->
+                    <div class="project-card group relative bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+                        <div class="aspect-video bg-black">
+                            <iframe class="youtube-video w-full h-full"
+                                src="https://www.youtube.com/embed/QoENMo7NQ-Q?enablejsapi=1&mute=1&controls=0&loop=1&playlist=QoENMo7NQ-Q"
+                                title="YouTube video player"
+                                frameborder="0">
+                            </iframe>
+                        </div>
+                        <div class="p-4 text-left">
+                            <h3 class="text-xl font-bold text-blue-400 truncate group-hover:whitespace-normal group-hover:text-wrap">Desenvolvimento de movimentação...</h3>
+                            <div class="overflow-hidden transition-all duration-500 ease-in-out max-h-0 group-hover:max-h-40">
+                                <p class="text-gray-400 mt-2 text-sm">Explorando a fluidez e a precisão dos movimentos, este projeto é um mergulho no desenvolvimento de mecânicas de rolagem. Inspirado na agilidade evasiva de Bloodborne e na resposta tática de CS:GO, o objetivo foi criar um sistema de controle que seja ao mesmo tempo intuitivo e recompensador.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card do Projeto 2 (Placeholder) -->
+                    <div class="project-card group relative bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+                        <div class="aspect-video bg-gray-900 flex items-center justify-center">
+                           <p class="text-gray-500">Seu próximo vídeo aqui</p>
+                        </div>
+                        <div class="p-4 text-left">
+                            <h3 class="text-xl font-bold text-blue-400 truncate group-hover:whitespace-normal group-hover:text-wrap">Próximo Projeto</h3>
+                             <div class="overflow-hidden transition-all duration-500 ease-in-out max-h-0 group-hover:max-h-40">
+                                <p class="text-gray-400 mt-2 text-sm">Descrição do seu segundo projeto aparecerá aqui quando o mouse estiver sobre o card.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card do Projeto 3 (Placeholder) -->
+                    <div class="project-card group relative bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+                        <div class="aspect-video bg-gray-900 flex items-center justify-center">
+                            <p class="text-gray-500">Seu terceiro vídeo aqui</p>
+                        </div>
+                        <div class="p-4 text-left">
+                            <h3 class="text-xl font-bold text-blue-400 truncate group-hover:whitespace-normal group-hover:text-wrap">Outro Projeto</h3>
+                             <div class="overflow-hidden transition-all duration-500 ease-in-out max-h-0 group-hover:max-h-40">
+                                <p class="text-gray-400 mt-2 text-sm">Descrição do seu terceiro projeto aparecerá aqui quando o mouse estiver sobre o card.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const eyeContainer = document.getElementById('eye-container');
+            const eye = document.getElementById('eye');
+            const pupil = document.getElementById('pupil');
+            const menu = document.getElementById('menu');
+            const mainContent = document.getElementById('main-content');
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            let menuOpen = false;
+
+            // Função para o olho seguir o mouse
+            document.addEventListener('mousemove', (e) => {
+                const eyeRect = eye.getBoundingClientRect();
+                const eyeX = eyeRect.left + eyeRect.width / 2;
+                const eyeY = eyeRect.top + eyeRect.height / 2;
+                const radian = Math.atan2(e.clientY - eyeY, e.clientX - eyeX);
+                const maxPupilMove = 5; // 8px * 0.6
+                const pupilX = Math.cos(radian) * maxPupilMove;
+                const pupilY = Math.sin(radian) * maxPupilMove;
+                pupil.style.transform = `translate(-50%, -50%) translate(${pupilX}px, ${pupilY}px)`;
+            });
+
+            // Função para abrir/fechar o menu
+            const toggleMenu = () => {
+                menuOpen = !menuOpen;
+                eye.classList.add('blinking');
+                setTimeout(() => eye.classList.remove('blinking'), 400);
+                if (menuOpen) {
+                    menu.style.transform = 'translateX(0)';
+                    mainContent.style.transform = 'translateX(16rem)';
+                } else {
+                    menu.style.transform = 'translateX(-100%)';
+                    mainContent.style.transform = 'translateX(0)';
+                }
+            };
+
+            eyeContainer.addEventListener('click', toggleMenu);
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    // Se for um link interno (smooth scroll), o menu fecha.
+                    // Se for um link externo (game.html), a página vai navegar, então o menu desaparecerá de qualquer forma.
+                    if (menuOpen && link.getAttribute('href').startsWith('#')) {
+                         toggleMenu();
+                    }
+                });
+            });
+
+            // --- CÓDIGO CORRIGIDO PARA ANIMAÇÃO DOS PROJETOS ---
+            const projectsGrid = document.getElementById('projects-grid');
+            const projectsTitle = document.getElementById('projects-title');
+            const projectCards = Array.from(projectsGrid.children);
+            let activeCard = null;
+
+            projectCards.forEach((card, index) => {
+                const video = card.querySelector('.youtube-video');
+                if (video) {
+                    video.dataset.originalSrc = video.src;
+                }
+
+                card.addEventListener('mouseenter', () => {
+                    if (activeCard === card) return;
+                    activeCard = card;
+
+                    projectsTitle.style.transform = 'translateY(-80px)';
+
+                    const gridRect = projectsGrid.getBoundingClientRect();
+                    
+                    projectCards.forEach((c, i) => {
+                        let translateX = 0;
+                        let scale = 1.5;
+                        let zIndex = '10';
+                        let opacity = '1';
+
+                        if (c !== card) {
+                            scale = 0.9;
+                            zIndex = '1';
+                            opacity = '0.5';
+                            const pushDistance = gridRect.width / 4;
+                            translateX = i < index ? -pushDistance : pushDistance;
+                        } else {
+                             if (index !== 1) {
+                                const cardRect = c.getBoundingClientRect();
+                                const gridCenter = gridRect.left + gridRect.width / 2;
+                                const cardCenter = cardRect.left + cardRect.width / 2;
+                                translateX = gridCenter - cardCenter;
+                             }
+                        }
+                        
+                        c.style.transform = `translateX(${translateX}px) scale(${scale})`;
+                        c.style.zIndex = zIndex;
+                        c.style.opacity = opacity;
+                    });
+
+                    if (video) {
+                        video.src = video.dataset.originalSrc + '&autoplay=1';
+                    }
+                });
+            });
+
+            projectsGrid.addEventListener('mouseleave', () => {
+                activeCard = null;
+                projectsTitle.style.transform = '';
+
+                projectCards.forEach(card => {
+                    card.style.transform = 'translateX(0px) scale(1)';
+                    card.style.zIndex = '';
+                    card.style.opacity = '1';
+                    
+                    const video = card.querySelector('.youtube-video');
+                    if (video && video.src.includes('&autoplay=1')) {
+                        video.src = video.dataset.originalSrc;
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
