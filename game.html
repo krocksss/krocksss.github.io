@@ -1,266 +1,256 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jogo do Triângulo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Game - Salto do Triângulo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            /* Tom de azul escuro extraído da imagem */
-            background-color: #0b192f;
-            font-family: 'Courier New', Courier, monospace;
-            color: white;
-            position: relative; /* Necessário para posicionar o botão 'voltar' */
-        }
-        #game-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            font-family: 'Orbitron', sans-serif;
+            background-color: #111827;
+            color: #F9FAFB;
+            overflow: hidden; /* Evita barras de rolagem */
         }
         canvas {
-            /* Fundo azul dentro do canvas, como solicitado */
-            background-color: #1a293d;
-            border-radius: 8px;
+            background-color: #1F2937; /* bg-gray-800 */
+            display: block;
+            border-radius: 0.5rem;
+            border: 2px solid #374151; /* bg-gray-700 */
         }
-        h1 {
-            margin-bottom: 20px;
-        }
-        /* Estilo para o botão 'voltar' */
-        .back-button {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            color: white;
-            text-decoration: none;
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            gap: 8px; /* Espaço entre a seta e o texto */
-        }
-        .back-button span:first-child {
-            font-size: 24px; /* Aumenta o tamanho da seta */
-        }
-        .back-button:hover {
-            text-decoration: underline;
+        .text-glow {
+            text-shadow: 0 0 8px rgba(59, 130, 246, 0.7), 0 0 20px rgba(59, 130, 246, 0.5);
         }
     </style>
 </head>
-<body>
+<body class="flex flex-col items-center justify-center min-h-screen p-4 relative">
 
-<a href="index.html" class="back-button">
-    <span>&larr;</span> <!-- Seta para a esquerda -->
-    <span>voltar</span>
-</a>
-
-<div id="game-container">
-    <h1>Jogo do Triângulo</h1>
-    <canvas id="gameCanvas" width="800" height="400"></canvas>
-</div>
-
-<script>
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-
-    // Constantes e Variáveis do Jogo
-    const LARGURA_TELA = canvas.width;
-    const ALTURA_TELA = canvas.height;
-    const ALTURA_CHAO = ALTURA_TELA - 50;
-
-    let velocidadeJogo = 3; // Velocidade inicial reduzida para 60% (era 5)
-    let pontuacao = 0;
-    let gameOver = false;
-    let frame = 0;
-
-    // Jogador (Triângulo)
-    const jogador = {
-        x: 60,
-        y: ALTURA_CHAO,
-        largura: 30, // Largura da base do triângulo
-        altura: 30,  // Altura do triângulo
-        velocidadeY: 0,
-        gravidade: 0.8,
-        forcaPulo: -16,
-        estaPulando: false,
-
-        desenhar() {
-            ctx.beginPath();
-            // Ponto superior do triângulo
-            ctx.moveTo(this.x, this.y - this.altura);
-            // Ponto inferior direito
-            ctx.lineTo(this.x + this.largura / 2, this.y);
-            // Ponto inferior esquerdo
-            ctx.lineTo(this.x - this.largura / 2, this.y);
-            ctx.closePath();
-
-            // Preenchimento e contorno
-            ctx.fillStyle = '#FFFFFF'; // Branco
-            ctx.fill();
-            ctx.strokeStyle = '#000000'; // Preto
-            ctx.lineWidth = 2;
-            ctx.stroke();
-        },
-
-        pular() {
-            // Só pode pular se não estiver no ar
-            if (!this.estaPulando) {
-                this.velocidadeY = this.forcaPulo;
-                this.estaPulando = true;
-            }
-        },
-
-        atualizar() {
-            this.velocidadeY += this.gravidade;
-            this.y += this.velocidadeY;
-
-            // Impede que o jogador caia para fora da tela
-            if (this.y > ALTURA_CHAO) {
-                this.y = ALTURA_CHAO;
-                this.velocidadeY = 0;
-                this.estaPulando = false;
-            }
-        }
-    };
-
-    // Obstáculos
-    const obstaculos = [];
-
-    function criarObstaculo() {
-        const altura = Math.random() * 40 + 25; // Altura aleatória entre 25 e 65
-        const largura = 25;
-        obstaculos.push({
-            x: LARGURA_TELA,
-            y: ALTURA_CHAO - altura,
-            largura: largura,
-            altura: altura,
-            passou: false // Nova propriedade para controlar a pontuação
-        });
-    }
-
-    function atualizarObstaculos() {
-        // Gera novos obstáculos em intervalos que diminuem com a velocidade
-        if (frame % Math.floor(120 / (velocidadeJogo / 3)) === 0) {
-            criarObstaculo();
-        }
-
-        for (let i = obstaculos.length - 1; i >= 0; i--) {
-            const obs = obstaculos[i];
-            obs.x -= velocidadeJogo;
-
-            // Lógica para pontuar quando o jogador passa o obstáculo
-            if (!obs.passou && obs.x + obs.largura < jogador.x) {
-                pontuacao++;
-                obs.passou = true;
-            }
-
-            // Desenha o obstáculo (retângulo branco)
-            ctx.fillStyle = '#FFFFFF';
-            ctx.fillRect(obs.x, obs.y, obs.largura, obs.altura);
-
-            // Detecção de colisão (usando a caixa delimitadora do triângulo)
-            const topoJogador = jogador.y - jogador.altura;
-            const baseJogador = jogador.y;
-            const esquerdaJogador = jogador.x - jogador.largura / 2;
-            const direitaJogador = jogador.x + jogador.largura / 2;
-
-            if (direitaJogador > obs.x &&
-                esquerdaJogador < obs.x + obs.largura &&
-                baseJogador > obs.y &&
-                topoJogador < obs.y + obs.altura) {
-                gameOver = true;
-            }
-
-            // Remove obstáculos que saíram da tela para otimizar o jogo
-            if (obs.x + obs.largura < 0) {
-                obstaculos.splice(i, 1);
-            }
-        }
-    }
-
-    function desenharCenario() {
-        // Limpa a tela a cada frame
-        ctx.clearRect(0, 0, LARGURA_TELA, ALTURA_TELA);
-
-        // Chão (linha branca)
-        ctx.strokeStyle = '#FFFFFF';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(0, ALTURA_CHAO);
-        ctx.lineTo(LARGURA_TELA, ALTURA_CHAO);
-        ctx.stroke();
-
-        // Pontuação
-        ctx.fillStyle = '#FFFFFF';
-        ctx.font = '24px "Courier New", Courier, monospace';
-        ctx.fillText(`Pontos: ${pontuacao}`, LARGURA_TELA - 200, 40);
-    }
-    
-    function exibirGameOver() {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-        ctx.fillRect(0, 0, LARGURA_TELA, ALTURA_TELA);
+    <a href="index.html" class="absolute top-4 left-4 text-blue-400 hover:text-blue-300 transition-colors z-10" aria-label="Voltar ao Portfólio">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.707-10.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L9.414 11H13a1 1 0 100-2H9.414l1.293-1.293z" clip-rule="evenodd" />
         
-        ctx.fillStyle = '#FFFFFF';
-        ctx.font = '50px "Courier New", Courier, monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText('GAME OVER', LARGURA_TELA / 2, ALTURA_TELA / 2 - 20);
+        <p>Voltar</P>
+        </svg>
+    </a>
 
-        ctx.font = '20px "Courier New", Courier, monospace';
-        ctx.fillText('Pressione ESPAÇO para reiniciar', LARGURA_TELA / 2, ALTURA_TELA / 2 + 20);
-        ctx.textAlign = 'left'; // Reseta o alinhamento do texto
-    }
+    <div id="game-container" class="w-full max-w-4xl mx-auto text-center">
+        <h1 class="text-3xl md:text-5xl text-glow mb-4">Salto do Triângulo</h1>
+        <canvas id="gameCanvas"></canvas>
 
-    function reiniciar() {
-        jogador.y = ALTURA_CHAO;
-        jogador.velocidadeY = 0;
-        obstaculos.length = 0; // Limpa o array de obstáculos
-        pontuacao = 0;
-        velocidadeJogo = 3; // Reseta para a velocidade inicial reduzida
-        frame = 0;
-        gameOver = false;
-        loop(); // Reinicia o loop do jogo
-    }
+        <!-- Tela de Início / Game Over -->
+        <div id="message-box" class="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50">
+            <div id="message-content" class="text-center">
+                <h2 id="message-title" class="text-4xl font-bold text-glow">Toque para Iniciar</h2>
+                <p id="message-score" class="text-2xl mt-2"></p>
+                <button id="restart-button" class="mt-6 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-xl">
+                    Jogar
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const gameContainer = document.getElementById('game-container');
 
-    // Adiciona o listener para o pulo com a tecla Espaço
-    document.addEventListener('keydown', (e) => {
-        if (e.code === 'Space') {
-            if (gameOver) {
-                reiniciar();
-            } else {
-                jogador.pular();
+        // Elementos da UI
+        const messageBox = document.getElementById('message-box');
+        const messageTitle = document.getElementById('message-title');
+        const messageScore = document.getElementById('message-score');
+        const restartButton = document.getElementById('restart-button');
+
+        let score = 0;
+        let gameSpeed = 3;
+        let isGameOver = true;
+        let animationFrameId;
+
+        // Configurações do jogador (triângulo)
+        const player = {
+            x: 50,
+            y: 0, // Será definido dinamicamente
+            width: 30,
+            height: 30,
+            velocityY: 0,
+            gravity: 0.5,
+            jumpStrength: -12,
+            isJumping: false
+        };
+
+        // Configurações dos obstáculos
+        let obstacles = [];
+        let obstacleTimer = 0;
+        let obstacleInterval = 120; // Intervalo para gerar novos obstáculos
+
+        function resizeCanvas() {
+            canvas.width = gameContainer.clientWidth;
+            canvas.height = window.innerHeight * 0.6;
+            player.y = canvas.height - player.height;
+        }
+
+        function drawPlayer() {
+            ctx.fillStyle = '#3B82F6'; // blue-500
+            ctx.beginPath();
+            ctx.moveTo(player.x, player.y);
+            ctx.lineTo(player.x + player.width, player.y);
+            ctx.lineTo(player.x + player.width / 2, player.y - player.height);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function updatePlayer() {
+            player.velocityY += player.gravity;
+            player.y += player.velocityY;
+
+            // Previne que o jogador caia para fora do chão
+            if (player.y > canvas.height - player.height) {
+                player.y = canvas.height - player.height;
+                player.velocityY = 0;
+                player.isJumping = false;
             }
         }
-    });
 
-    // Loop principal do Jogo
-    function loop() {
-        if (gameOver) {
-            exibirGameOver();
-            return;
+        function jump() {
+            if (!player.isJumping) {
+                player.velocityY = player.jumpStrength;
+                player.isJumping = true;
+            }
         }
 
-        desenharCenario();
-        jogador.desenhar();
-        jogador.atualizar();
-        atualizarObstaculos();
+        function drawObstacles() {
+            ctx.fillStyle = '#F87171'; // red-400
+            obstacles.forEach(obstacle => {
+                ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+            });
+        }
 
-        // Atualiza contadores
-        // Aumento de velocidade reduzido para 60% (era 0.002)
-        velocidadeJogo += 0.0012; 
-        frame++;
+        function updateObstacles() {
+            obstacleTimer++;
+            if (obstacleTimer > obstacleInterval) {
+                const height = Math.random() * (canvas.height / 4) + 20;
+                obstacles.push({
+                    x: canvas.width,
+                    y: canvas.height - height,
+                    width: 20,
+                    height: height,
+                    passed: false // Adiciona a flag para controle de pontuação
+                });
+                obstacleTimer = 0;
+            }
 
-        // Chama o próximo frame da animação
-        requestAnimationFrame(loop);
-    }
+            obstacles.forEach(obstacle => {
+                obstacle.x -= gameSpeed;
 
-    // Inicia o jogo
-    loop();
+                // CORREÇÃO: Verifica se o obstáculo foi ultrapassado para pontuar
+                if (!obstacle.passed && obstacle.x + obstacle.width < player.x) {
+                    score++;
+                    obstacle.passed = true;
+                }
+            });
 
-</script>
+            // Remove obstáculos que saíram da tela
+            obstacles = obstacles.filter(obstacle => obstacle.x + obstacle.width > 0);
+        }
 
+        function checkCollision() {
+            for (let obstacle of obstacles) {
+                const playerHitbox = {
+                    left: player.x + player.width * 0.2,
+                    right: player.x + player.width * 0.8,
+                    top: player.y - player.height,
+                    bottom: player.y
+                };
+
+                const obstacleHitbox = {
+                    left: obstacle.x,
+                    right: obstacle.x + obstacle.width,
+                    top: obstacle.y,
+                    bottom: canvas.height
+                };
+
+                if (playerHitbox.right > obstacleHitbox.left &&
+                    playerHitbox.left < obstacleHitbox.right &&
+                    playerHitbox.bottom > obstacleHitbox.top) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function drawScore() {
+            ctx.fillStyle = 'white';
+            ctx.font = '24px Orbitron';
+            ctx.textAlign = 'left';
+            ctx.fillText(`Score: ${score}`, 20, 40);
+        }
+
+        function gameLoop() {
+            if (isGameOver) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // CORREÇÃO: A velocidade agora é baseada na pontuação
+            gameSpeed = 3 + (score * 0.2);
+
+            updatePlayer();
+            drawPlayer();
+
+            updateObstacles();
+            drawObstacles();
+
+            if (checkCollision()) {
+                gameOver();
+                return;
+            }
+
+            drawScore();
+
+            animationFrameId = requestAnimationFrame(gameLoop);
+        }
+
+        function startGame() {
+            isGameOver = false;
+            score = 0;
+            gameSpeed = 3;
+            obstacles = [];
+            obstacleInterval = 120;
+            player.y = canvas.height - player.height;
+            player.velocityY = 0;
+            messageBox.style.display = 'none';
+            gameLoop();
+        }
+
+        function gameOver() {
+            isGameOver = true;
+            cancelAnimationFrame(animationFrameId);
+            messageBox.style.display = 'flex';
+            messageTitle.textContent = 'Game Over';
+            messageScore.textContent = `Seu Score: ${score}`;
+            restartButton.textContent = 'Jogar Novamente';
+        }
+
+        // Event Listeners
+        window.addEventListener('resize', resizeCanvas);
+        
+        // Para PC e Mobile
+        restartButton.addEventListener('click', startGame);
+        window.addEventListener('mousedown', () => {
+            if (!isGameOver) jump();
+        });
+        window.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // Previne zoom e outros comportamentos do navegador
+            if (!isGameOver) jump();
+        });
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && !isGameOver) {
+                jump();
+            }
+        });
+
+
+        // Início
+        resizeCanvas();
+    </script>
 </body>
 </html>
-
