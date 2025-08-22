@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Marllon Machado - Portfólio</title>
-    <link rel="icon" href="https://github.com/user-attachments/assets/f1d6f063-428d-4d6f-8dd4-ba9d88109ec4" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -132,6 +131,13 @@
         .project-card {
             transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.5s ease;
         }
+        .sound-icon {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .project-card.is-active .sound-icon {
+            opacity: 1;
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -202,12 +208,13 @@
                     
                     <!-- Card do Projeto 1 -->
                     <div class="project-card group relative bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
-                        <div class="aspect-video bg-black">
-                            <iframe class="youtube-video w-full h-full"
-                                src="https://www.youtube.com/embed/QoENMo7NQ-Q?enablejsapi=1&mute=1&controls=0&loop=1&playlist=QoENMo7NQ-Q"
+                        <div class="relative aspect-video bg-black">
+                            <iframe id="video-0" class="youtube-video w-full h-full"
+                                src="https://www.youtube.com/embed/QoENMo7NQ-Q?enablejsapi=1&controls=0&loop=1&playlist=QoENMo7NQ-Q"
                                 title="YouTube video player"
                                 frameborder="0">
                             </iframe>
+                            <div class="sound-icon absolute top-2 right-2 p-1 rounded-full bg-black bg-opacity-50"></div>
                         </div>
                         <div class="p-4 text-left">
                             <h3 class="text-xl font-bold text-blue-400 truncate group-hover:whitespace-normal group-hover:text-wrap">Desenvolvimento de movimentação...</h3>
@@ -217,15 +224,20 @@
                         </div>
                     </div>
 
-                    <!-- Card do Projeto 2 (Placeholder) -->
+                    <!-- Card do Projeto 2 (Blender) -->
                     <div class="project-card group relative bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
-                        <div class="aspect-video bg-gray-900 flex items-center justify-center">
-                           <p class="text-gray-500">Seu próximo vídeo aqui</p>
+                        <div class="relative aspect-video bg-black flex items-center justify-center">
+                           <iframe id="video-1" class="youtube-video w-full h-full" 
+                                src="https://www.youtube.com/embed/GKYrMcGQouM?enablejsapi=1&controls=0&loop=1&playlist=GKYrMcGQouM" 
+                                title="YouTube video player" 
+                                frameborder="0">
+                           </iframe>
+                           <div class="sound-icon absolute top-2 right-2 p-1 rounded-full bg-black bg-opacity-50"></div>
                         </div>
                         <div class="p-4 text-left">
-                            <h3 class="text-xl font-bold text-blue-400 truncate group-hover:whitespace-normal group-hover:text-wrap">Próximo Projeto</h3>
+                            <h3 class="text-xl font-bold text-blue-400 truncate group-hover:whitespace-normal group-hover:text-wrap">Modelagem 3D - Personagem Sci-Fi</h3>
                              <div class="overflow-hidden transition-all duration-500 ease-in-out max-h-0 group-hover:max-h-40">
-                                <p class="text-gray-400 mt-2 text-sm">Descrição do seu segundo projeto aparecerá aqui quando o mouse estiver sobre o card.</p>
+                                <p class="text-gray-400 mt-2 text-sm">Criação de uma bengala para servir de arma. Primeira parte, posteriormente implementarei a segunda forma da arma semelhante a funcionalidade de `TRICK WEAPONS` de BloodBorne.</p>
                             </div>
                         </div>
                     </div>
@@ -248,7 +260,8 @@
         </section>
 
     </main>
-
+    
+    <script src="https://www.youtube.com/iframe_api"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const eyeContainer = document.getElementById('eye-container');
@@ -290,29 +303,53 @@
 
             navLinks.forEach(link => {
                 link.addEventListener('click', (e) => {
-                    // Se for um link interno (smooth scroll), o menu fecha.
-                    // Se for um link externo (game.html), a página vai navegar, então o menu desaparecerá de qualquer forma.
                     if (menuOpen && link.getAttribute('href').startsWith('#')) {
                          toggleMenu();
                     }
                 });
             });
 
-            // --- CÓDIGO CORRIGIDO PARA ANIMAÇÃO DOS PROJETOS ---
+            // --- CÓDIGO ATUALIZADO PARA ANIMAÇÃO DOS PROJETOS E SOM ---
             const projectsGrid = document.getElementById('projects-grid');
             const projectsTitle = document.getElementById('projects-title');
             const projectCards = Array.from(projectsGrid.children);
             let activeCard = null;
+            let players = {};
+            
+            const soundOnIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.022 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" /></svg>`;
+            const soundOffIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M13.477 14.89A6 6 0 015.11 6.524l8.367 8.367zm1.414-1.414L6.524 5.11a6 6 0 018.367 8.367zM18 10a8 8 0 11-16 0 8 8 0 0116 0z" clip-rule="evenodd" /></svg>`;
+
+            window.onYouTubeIframeAPIReady = function() {
+                projectCards.forEach((card, index) => {
+                    const iframe = card.querySelector('.youtube-video');
+                    if (iframe) {
+                        const videoId = `video-${index}`;
+                        iframe.id = videoId;
+                        players[videoId] = new YT.Player(videoId, {
+                            events: {
+                                'onReady': (event) => {
+                                    event.target.mute();
+                                }
+                            }
+                        });
+                    }
+                });
+            };
+
+            const updateSoundIcon = (card) => {
+                const iconContainer = card.querySelector('.sound-icon');
+                const iframe = card.querySelector('.youtube-video');
+                if (iconContainer && iframe && players[iframe.id]) {
+                    const player = players[iframe.id];
+                    iconContainer.innerHTML = player.isMuted() ? soundOffIcon : soundOnIcon;
+                }
+            };
 
             projectCards.forEach((card, index) => {
-                const video = card.querySelector('.youtube-video');
-                if (video) {
-                    video.dataset.originalSrc = video.src;
-                }
-
                 card.addEventListener('mouseenter', () => {
                     if (activeCard === card) return;
                     activeCard = card;
+                    card.classList.add('is-active');
 
                     projectsTitle.style.transform = 'translateY(-80px)';
 
@@ -344,8 +381,23 @@
                         c.style.opacity = opacity;
                     });
 
-                    if (video) {
-                        video.src = video.dataset.originalSrc + '&autoplay=1';
+                    const iframe = card.querySelector('.youtube-video');
+                    if (iframe && players[iframe.id]) {
+                        players[iframe.id].playVideo();
+                        updateSoundIcon(card);
+                    }
+                });
+
+                card.addEventListener('click', () => {
+                    const iframe = card.querySelector('.youtube-video');
+                    if (iframe && players[iframe.id] && activeCard === card) {
+                        const player = players[iframe.id];
+                        if (player.isMuted()) {
+                            player.unMute();
+                        } else {
+                            player.mute();
+                        }
+                        updateSoundIcon(card);
                     }
                 });
             });
@@ -355,13 +407,15 @@
                 projectsTitle.style.transform = '';
 
                 projectCards.forEach(card => {
+                    card.classList.remove('is-active');
                     card.style.transform = 'translateX(0px) scale(1)';
                     card.style.zIndex = '';
                     card.style.opacity = '1';
                     
-                    const video = card.querySelector('.youtube-video');
-                    if (video && video.src.includes('&autoplay=1')) {
-                        video.src = video.dataset.originalSrc;
+                    const iframe = card.querySelector('.youtube-video');
+                    if (iframe && players[iframe.id]) {
+                        players[iframe.id].stopVideo();
+                        players[iframe.id].mute(); // Garante que comece mudo da próxima vez
                     }
                 });
             });
